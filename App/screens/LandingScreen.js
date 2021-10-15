@@ -1,31 +1,63 @@
-import React, {useEffect} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  Text,
-  View,
-  StyleSheet,
-  Button,
-} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {SafeAreaView, ScrollView, Text, View, StyleSheet} from 'react-native';
+
+import BackgroundTimer from 'react-native-background-timer';
 
 import {useSelector, useDispatch} from 'react-redux';
-import {activateSession, deActivateSession} from '../redux/actions/userActions';
+import {deActivateSession} from '../redux/actions/userActions';
+
+import SessionToggleButton from '../components/SessionToggleButton';
+
+import useAppState from '../hooks/useAppState';
 
 const LandingScreen = () => {
   const {isSessionActive} = useSelector(state => state.session);
-
   const dispatch = useDispatch();
+
+  const currentAppState = useAppState();
+
+  const [secondsLeft, setSecondsLeft] = useState(600);
 
   useEffect(() => {
     dispatch(deActivateSession());
   }, []);
 
-  const onPressToggleButton = () => {
-    if (isSessionActive) {
-      return dispatch(deActivateSession());
-    }
-    return dispatch(activateSession());
+  const startTimer = () => {
+    BackgroundTimer.runBackgroundTimer(() => {
+      setSecondsLeft(secs => {
+        if (secs > 0) {
+          return secs - 1;
+        } else {
+          return 0;
+        }
+      });
+    }, 1000);
   };
+
+  useEffect(() => {
+    if (!isSessionActive) {
+      return;
+    }
+
+    if (currentAppState.match(/inactive|background/)) {
+      startTimer();
+    } else {
+      BackgroundTimer.stopBackgroundTimer();
+      setSecondsLeft(600);
+    }
+
+    return () => {
+      BackgroundTimer.stopBackgroundTimer();
+      setSecondsLeft(600);
+    };
+  }, [isSessionActive, currentAppState]);
+
+  useEffect(() => {
+    if (secondsLeft === 0) {
+      dispatch(deActivateSession());
+      BackgroundTimer.stopBackgroundTimer();
+    }
+  }, [dispatch, secondsLeft]);
 
   return (
     <SafeAreaView>
@@ -37,10 +69,7 @@ const LandingScreen = () => {
         <Text style={styles.heading}>
           {` Is session active? : ${isSessionActive}`}
         </Text>
-
-        <View style={styles.toggleButton}>
-          <Button title="Toggle session" onPress={onPressToggleButton} />
-        </View>
+        <SessionToggleButton />
       </ScrollView>
     </SafeAreaView>
   );
