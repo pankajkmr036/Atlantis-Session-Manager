@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -15,6 +15,10 @@ const LandingScreen = () => {
   const {isSessionActive} = useSelector(state => state.session);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(deActivateSession());
+  }, []);
 
   const onPressToggleButton = () => {
     if (isSessionActive) {
