@@ -1,63 +1,21 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect} from 'react';
 import {SafeAreaView, ScrollView, Text, View, StyleSheet} from 'react-native';
-
-import BackgroundTimer from 'react-native-background-timer';
 
 import {useSelector, useDispatch} from 'react-redux';
 import {deActivateSession} from '../redux/actions/userActions';
 
 import SessionToggleButton from '../components/SessionToggleButton';
-
-import useAppState from '../hooks/useAppState';
+import useBackGroundCounter from '../hooks/useBackGroundCounter';
 
 const LandingScreen = () => {
   const {isSessionActive} = useSelector(state => state.session);
   const dispatch = useDispatch();
 
-  const currentAppState = useAppState();
-
-  const [secondsLeft, setSecondsLeft] = useState(600);
+  useBackGroundCounter();
 
   useEffect(() => {
     dispatch(deActivateSession());
-  }, []);
-
-  const startTimer = () => {
-    BackgroundTimer.runBackgroundTimer(() => {
-      setSecondsLeft(secs => {
-        if (secs > 0) {
-          return secs - 1;
-        } else {
-          return 0;
-        }
-      });
-    }, 1000);
-  };
-
-  useEffect(() => {
-    if (!isSessionActive) {
-      return;
-    }
-
-    if (currentAppState.match(/inactive|background/)) {
-      startTimer();
-    } else {
-      BackgroundTimer.stopBackgroundTimer();
-      setSecondsLeft(600);
-    }
-
-    return () => {
-      BackgroundTimer.stopBackgroundTimer();
-      setSecondsLeft(600);
-    };
-  }, [isSessionActive, currentAppState]);
-
-  useEffect(() => {
-    if (secondsLeft === 0) {
-      dispatch(deActivateSession());
-      BackgroundTimer.stopBackgroundTimer();
-    }
-  }, [dispatch, secondsLeft]);
+  }, [dispatch]);
 
   return (
     <SafeAreaView>
