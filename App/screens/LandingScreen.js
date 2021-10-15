@@ -1,19 +1,36 @@
 import React from 'react';
-import {SafeAreaView, ScrollView, Text, View, StyleSheet} from 'react-native';
+import {
+  SafeAreaView,
+  ScrollView,
+  Text,
+  View,
+  StyleSheet,
+  Button,
+} from 'react-native';
 
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
+import {toggleSession} from '../redux/actions/userActions';
 
 const LandingScreen = () => {
   const {isSessionActive} = useSelector(state => state.session);
+
+  const dispatch = useDispatch();
+
+  const onPressToggleButton = () => dispatch(toggleSession());
 
   return (
     <SafeAreaView>
       <ScrollView>
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Session manager</Text>
-          <Text style={styles.heading}>
-            {` Is session active? : ${isSessionActive}`}
-          </Text>
+        </View>
+
+        <Text style={styles.heading}>
+          {` Is session active? : ${isSessionActive}`}
+        </Text>
+
+        <View style={styles.toggleButton}>
+          <Button title="Toggle session" onPress={onPressToggleButton} />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -31,9 +48,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   heading: {
+    alignSelf: 'center',
     fontSize: 18,
     fontWeight: '600',
     marginTop: 200,
+  },
+  toggleButton: {
+    marginTop: 50,
   },
 });
 
