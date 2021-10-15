@@ -9,14 +9,19 @@ import {
 } from 'react-native';
 
 import {useSelector, useDispatch} from 'react-redux';
-import {toggleSession} from '../redux/actions/userActions';
+import {activateSession, deActivateSession} from '../redux/actions/userActions';
 
 const LandingScreen = () => {
   const {isSessionActive} = useSelector(state => state.session);
 
   const dispatch = useDispatch();
 
-  const onPressToggleButton = () => dispatch(toggleSession());
+  const onPressToggleButton = () => {
+    if (isSessionActive) {
+      return dispatch(deActivateSession());
+    }
+    return dispatch(activateSession());
+  };
 
   return (
     <SafeAreaView>
