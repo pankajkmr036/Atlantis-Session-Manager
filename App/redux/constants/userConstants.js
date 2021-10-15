@@ -1,0 +1,1 @@
+export const TOGGLE_SESSION = 'TOGGLE_SESSION';
